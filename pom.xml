@@ -20,7 +20,7 @@
 	<repositories>
         <repository>
 			<id>lire</id>
-			<url>https://github.com/angleto/lire</url>
+            <url>https://github.com/angleto/maven-repo/raw/lire</url>
             <snapshots>
                 <enabled>true</enabled>
                 <updatePolicy>always</updatePolicy>
@@ -73,9 +73,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.angleto</groupId>  <!-- Modified to deploy on maven -->
+            <groupId>net.semanticmetadata</groupId>  <!-- Modified to deploy on maven -->
             <artifactId>lire</artifactId>
-            <version>v1.1</version>
+            <version>0.9.4-SNAPSHOT</version>
         </dependency>
 
         <dependency>
