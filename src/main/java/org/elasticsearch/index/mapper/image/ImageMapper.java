@@ -310,8 +310,7 @@ public class ImageMapper implements Mapper {
                 byte[] parsedContent = lireFeature.getByteArrayRepresentation();
 
                 Mapper featureMapper = featureMappers.get(featureEnum.name());
-                context.externalValue(parsedContent);
-                featureMapper.parse(context);
+                featureMapper.parse(context.createExternalValueContext(parsedContent));
                 context.doc().add(new BinaryDocValuesField(name() + "." + featureEnum.name(), new BytesRef(parsedContent)));
 
                 // add hash if required
@@ -327,9 +326,8 @@ public class ImageMapper implements Mapper {
                         }
 
                         String mapperName = featureEnum.name() + "." + HASH + "." + h;
-                        Mapper hashMapper = hashMappers.get(mapperName);
-                        context.externalValue(SerializationUtils.arrayToString(hashVals));
-                        hashMapper.parse(context);
+                        Mapper hashMapper = hashMappers.get(mapperName) ;
+                        hashMapper.parse(context.createExternalValueContext(SerializationUtils.arrayToString(hashVals)));
                     }
                 }
             } catch (Exception e) {
@@ -347,8 +345,7 @@ public class ImageMapper implements Mapper {
                                 tag.getTagName().toLowerCase().replaceAll("\\s+", "_");
                         if (metadataMappers.containsKey(metadataName)) {
                             Mapper mapper = metadataMappers.get(metadataName);
-                            context.externalValue(tag.getDescription());
-                            mapper.parse(context);
+                            mapper.parse(context.createExternalValueContext(tag.getDescription()));
                         }
                     }
                 }
