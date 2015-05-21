@@ -139,7 +139,6 @@ public class ImageMapper implements Mapper {
             this.threadPool = threadPool;
         }
 
-        @SuppressWarnings({"unchecked"})
         @Override
         public Mapper.Builder parse(String name, Map<String, Object> node, ParserContext parserContext) throws MapperParsingException {
             ImageMapper.Builder builder = new ImageMapper.Builder(name, threadPool);
