@@ -254,7 +254,7 @@ public class ImageMapper implements Mapper {
         final Boolean useThreadPool = settings.getAsBoolean("index.image.use_thread_pool", true);
         final Boolean ignoreMetadataError = settings.getAsBoolean("index.image.ignore_metadata_error", true);
 
-        BufferedImage img = ImageIO.read(new BytesStreamInput(content, false));
+        BufferedImage img = ImageIO.read(new BytesStreamInput(content));
         if (Math.max(img.getHeight(), img.getWidth()) > MAX_IMAGE_DIMENSION) {
             img = ImageUtils.scaleImage(img, MAX_IMAGE_DIMENSION);
         }
@@ -338,7 +338,7 @@ public class ImageMapper implements Mapper {
         // process metadata if required
         if (!metadataMappers.isEmpty()) {
             try {
-                Metadata metadata = ImageMetadataReader.readMetadata(new BufferedInputStream(new BytesStreamInput(content, false)), false);
+                Metadata metadata = ImageMetadataReader.readMetadata(new BufferedInputStream(new BytesStreamInput(content)), false);
                 for (Directory directory : metadata.getDirectories()) {
                     for (Tag tag : directory.getTags()) {
                         String metadataName = tag.getDirectoryName().toLowerCase().replaceAll("\\s+", "_") + "." +
