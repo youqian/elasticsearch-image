@@ -133,11 +133,15 @@ public class ImageHashLimitQuery extends Query {
 
             return new ComplexExplanation(false, 0.0f, "no matching term");
         }
+
+        @Override
+        public void extractTerms(Set<Term> terms) {
+        }
     }
 
 
     @Override
-    public Weight createWeight(IndexSearcher searcher) throws IOException {
+    public Weight createWeight(IndexSearcher searcher, boolean needsScores) throws IOException {
         IndexSearcher indexSearcher = new IndexSearcher(searcher.getIndexReader());
         indexSearcher.setSimilarity(new SimpleSimilarity());
 
@@ -157,10 +161,6 @@ public class ImageHashLimitQuery extends Query {
         }
 
         return new ImageHashLimitWeight(searcher, bitSet);
-    }
-
-    @Override
-    public void extractTerms(Set<Term> terms) {
     }
 
     @Override

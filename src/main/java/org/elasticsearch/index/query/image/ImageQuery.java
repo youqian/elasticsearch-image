@@ -77,11 +77,6 @@ public class ImageQuery extends Query {
         }
 
         @Override
-        public Query getQuery() {
-            return ImageQuery.this;
-        }
-
-        @Override
         public float getValueForNormalization() {
             return 1f;
         }
@@ -117,15 +112,15 @@ public class ImageQuery extends Query {
 
             return new ComplexExplanation(false, 0.0f, "no matching term");
         }
+
+        @Override
+        public void extractTerms(Set<Term> terms) {
+        }
     }
 
     @Override
     public Weight createWeight(IndexSearcher searcher) {
         return new ImageWeight(searcher);
-    }
-
-    @Override
-    public void extractTerms(Set<Term> terms) {
     }
 
     @Override
