@@ -89,7 +89,7 @@ public class ImageHashQuery extends Query {
         }
 
         @Override
-        public Scorer scorer(AtomicReaderContext context, Bits acceptDocs) throws IOException {
+        public Scorer scorer(LeafReaderContext context, Bits acceptDocs) throws IOException {
             assert termStates.topReaderContext == ReaderUtil.getTopLevelContext(context) : "The top-reader used to create Weight (" + termStates.topReaderContext + ") is not the same as the current reader's top-reader (" + ReaderUtil.getTopLevelContext(context);
             final TermsEnum termsEnum = getTermsEnum(context);
             if (termsEnum == null) {
@@ -100,7 +100,7 @@ public class ImageHashQuery extends Query {
             return new ImageHashScorer(this, docs, context.reader());
         }
 
-        private TermsEnum getTermsEnum(AtomicReaderContext context) throws IOException {
+        private TermsEnum getTermsEnum(LeafReaderContext context) throws IOException {
             final TermState state = termStates.get(context.ord);
             if (state == null) { // term is not present in that reader
                 assert termNotInReader(context.reader(), term) : "no termstate found but term exists in reader term=" + term;
@@ -111,12 +111,12 @@ public class ImageHashQuery extends Query {
             return termsEnum;
         }
 
-        private boolean termNotInReader(AtomicReader reader, Term term) throws IOException {
+        private boolean termNotInReader(LeafReader reader, Term term) throws IOException {
             return reader.docFreq(term) == 0;
         }
 
         @Override
-        public Explanation explain(AtomicReaderContext context, int doc) throws IOException {
+        public Explanation explain(LeafReaderContext context, int doc) throws IOException {
             Scorer scorer = scorer(context, context.reader().getLiveDocs());
             if (scorer != null) {
                 int newDoc = scorer.advance(doc);

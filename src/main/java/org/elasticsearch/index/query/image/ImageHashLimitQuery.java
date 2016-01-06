@@ -42,7 +42,7 @@ public class ImageHashLimitQuery extends Query {
         private final BitSet bitSet;
         private final Bits liveDocs;
 
-        ImageHashScorer(Weight weight, BitSet bitSet, AtomicReaderContext context, Bits liveDocs) {
+        ImageHashScorer(Weight weight, BitSet bitSet, LeafReaderContext context, Bits liveDocs) {
             super(weight, luceneFieldName, lireFeature, context.reader(), ImageHashLimitQuery.this.getBoost());
             this.bitSet = bitSet;
             this.liveDocs = liveDocs;
@@ -107,12 +107,12 @@ public class ImageHashLimitQuery extends Query {
         }
 
         @Override
-        public Scorer scorer(AtomicReaderContext context, Bits acceptDocs) throws IOException {
+        public Scorer scorer(LeafReaderContext context, Bits acceptDocs) throws IOException {
             return new ImageHashScorer(this, bitSet, context, acceptDocs);
         }
 
         @Override
-        public Explanation explain(AtomicReaderContext context, int doc) throws IOException {
+        public Explanation explain(LeafReaderContext context, int doc) throws IOException {
             Scorer scorer = scorer(context, context.reader().getLiveDocs());
             if (scorer != null) {
                 int newDoc = scorer.advance(doc);

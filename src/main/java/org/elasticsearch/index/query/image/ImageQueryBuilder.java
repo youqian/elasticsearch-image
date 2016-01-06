@@ -1,6 +1,7 @@
 package org.elasticsearch.index.query.image;
 
 
+import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BaseQueryBuilder;
 import org.elasticsearch.index.query.BoostableQueryBuilder;
@@ -87,7 +88,7 @@ public class ImageQueryBuilder extends BaseQueryBuilder implements BoostableQuer
     }
 
     @Override
-    protected void doXContent(XContentBuilder builder, Params params) throws IOException {
+    protected void doXContent(XContentBuilder builder, ToXContent.Params params) throws IOException {
         builder.startObject(ImageQueryParser.NAME);
 
         builder.startObject(fieldName);

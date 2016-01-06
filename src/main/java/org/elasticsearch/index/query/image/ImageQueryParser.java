@@ -15,7 +15,7 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.inject.Inject;
-import org.elasticsearch.common.io.stream.BytesStreamInput;
+import org.elasticsearch.common.io.stream.ByteBufferStreamInput;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.index.get.GetField;
 import org.elasticsearch.index.mapper.image.FeatureEnum;
@@ -28,6 +28,7 @@ import org.elasticsearch.index.query.QueryParsingException;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public class ImageQueryParser implements QueryParser {
 
@@ -51,7 +52,7 @@ public class ImageQueryParser implements QueryParser {
 
         XContentParser.Token token = parser.nextToken();
         if (token != XContentParser.Token.FIELD_NAME) {
-            throw new QueryParsingException(parseContext.index(), "[image] query malformed, no field");
+            throw new QueryParsingException(parseContext, "[image] query malformed, no field");
         }
 
 
@@ -97,7 +98,7 @@ public class ImageQueryParser implements QueryParser {
                     } else if ("routing".equals(currentFieldName)) {
                         lookupRouting = parser.textOrNull();
                     } else {
-                        throw new QueryParsingException(parseContext.index(), "[image] query does not support [" + currentFieldName + "]");
+                        throw new QueryParsingException(parseContext, "[image] query does not support [" + currentFieldName + "]");
                     }
                 }
             }
@@ -105,7 +106,7 @@ public class ImageQueryParser implements QueryParser {
         }
 
         if (featureEnum == null) {
-            throw new QueryParsingException(parseContext.index(), "No feature specified for image query");
+            throw new QueryParsingException(parseContext, "No feature specified for image query");
         }
 
         String luceneFieldName = fieldName + "." + featureEnum.name();
@@ -114,7 +115,7 @@ public class ImageQueryParser implements QueryParser {
         if (image != null) {
             try {
                 feature = featureEnum.getFeatureClass().newInstance();
-                BufferedImage img = ImageIO.read(new BytesStreamInput(image));
+                BufferedImage img = ImageIO.read(new ByteBufferStreamInput(ByteBuffer.wrap(image)));
                 if (Math.max(img.getHeight(), img.getWidth()) > ImageMapper.MAX_IMAGE_DIMENSION) {
                     img = ImageUtils.scaleImage(img, ImageMapper.MAX_IMAGE_DIMENSION);
                 }
@@ -139,7 +140,7 @@ public class ImageQueryParser implements QueryParser {
             }
         }
         if (feature == null) {
-            throw new QueryParsingException(parseContext.index(), "No image specified for image query");
+            throw new QueryParsingException(parseContext, "No image specified for image query");
         }
 
 

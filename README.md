@@ -7,12 +7,11 @@ The Image Plugin is an Content Based Image Retrieval Plugin for Elasticsearch us
 
 It adds an `image` field type and an `image` query
 
-See [http://demo.elasticsearch-image.com](http://demo.elasticsearch-image.com) for a demo of the plugin
-
-In order to install the plugin, simply run: `bin/plugin -install com.github.kzwang/elasticsearch-image/1.2.0`.
+In order to install the plugin, simply run: `bin\plugin install zengde/elasticsearch-image`.
 
 |     Image Plugin          |  elasticsearch    | Release date |
 |---------------------------|-------------------|:------------:|
+| 2.1.1                     | 2.1.1             |              |
 | 1.3.0-SNAPSHOT (master)   | 1.1.0             |              |
 | 1.2.0                     | 1.0.1             | 2014-03-20   |
 | 1.1.0                     | 1.0.1             | 2014-03-13   |
@@ -154,6 +153,7 @@ See [Large image data sets with LIRE ?some new numbers](http://www.semanticmetad
 | index.image.ignore_metadata_error| ignore errors happened during extract metadata from image | True |
 
 ## ChangeLog
+#### 2.1.1 (2016-01-06)
 
 #### 1.2.0 (2014-03-20)
 
