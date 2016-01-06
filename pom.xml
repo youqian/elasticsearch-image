@@ -7,7 +7,7 @@
     <version>2.1.1</version>
     <packaging>jar</packaging>
     <description>Image Plugin for ElasticSearch</description>
-    <url>http://github.com/angleto/elasticsearch-image</url>
+    <url>http://github.com/zengde/elasticsearch-image</url>
 
     <licenses>
         <license>
@@ -17,16 +17,16 @@
         </license>
     </licenses>
     <scm>
-        <connection>scm:git:git@github.com:angleto/elasticsearch-image.git</connection>
-        <developerConnection>scm:git:git@github.com:angleto/elasticsearch-image.git</developerConnection>
-        <url>http://github.com/angleto/elasticsearch-image</url>
+        <connection>scm:git:git@github.com:zengde/elasticsearch-image.git</connection>
+        <developerConnection>scm:git:git@github.com:zengde/elasticsearch-image.git</developerConnection>
+        <url>http://github.com/zengde/elasticsearch-image</url>
     </scm>
 
     <developers>
         <developer>
-            <id>angleto</id>
-            <name>Angelo Leto</name>
-            <email>angleto@gmail.com</email>
+            <id>zengde</id>
+            <name>zengde</name>
+            <email>admin@zengde.net</email>
         </developer>
     </developers>
 

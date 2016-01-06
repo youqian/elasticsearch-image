@@ -95,9 +95,6 @@ public class ImageHashLimitQuery extends Query {
         public String toString() { return "weight(" + ImageHashLimitQuery.this + ")"; }
 
         @Override
-        public Query getQuery() { return ImageHashLimitQuery.this; }
-
-        @Override
         public float getValueForNormalization() {
             return 1f;
         }

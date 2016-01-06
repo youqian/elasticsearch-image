@@ -1,6 +1,9 @@
 package org.elasticsearch.index.query.image;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import net.semanticmetadata.lire.imageanalysis.LireFeature;
@@ -77,9 +80,6 @@ public class ImageHashQuery extends Query {
         public String toString() { return "weight(" + ImageHashQuery.this + ")"; }
 
         @Override
-        public Query getQuery() { return ImageHashQuery.this; }
-
-        @Override
         public float getValueForNormalization() {
             return 1f;
         }
@@ -118,24 +118,22 @@ public class ImageHashQuery extends Query {
         @Override
         public Explanation explain(LeafReaderContext context, int doc) throws IOException {
             Scorer scorer = scorer(context, context.reader().getLiveDocs());
-            if (scorer != null) {
-                int newDoc = scorer.advance(doc);
-                if (newDoc == doc) {
-                    float score = scorer.score();
-                    ComplexExplanation result = new ComplexExplanation();
-                    result.setDescription("ImageHashQuery, product of:");
-                    result.setValue(score);
-                    if (getBoost() != 1.0f) {
-                        result.addDetail(new Explanation(getBoost(),"boost"));
-                        score = score / getBoost();
-                    }
-                    result.addDetail(new Explanation(score ,"image score (1/distance)"));
-                    result.setMatch(true);
-                    return result;
-                }
-            }
+            boolean exists = (scorer != null && scorer.advance(doc) == doc);
 
-            return new ComplexExplanation(false, 0.0f, "no matching term");
+            if(exists){
+                float score = scorer.score();
+                List<Explanation> details=new ArrayList<>();
+                if (getBoost() != 1.0f) {
+                    details.add(Explanation.match(getBoost(), "boost"));
+                    score = score / getBoost();
+                }
+                details.add(Explanation.match(score ,"image score (1/distance)"));
+                return Explanation.match(
+                         score, ImageHashQuery.this.toString() + ", product of:",details);
+
+            }else{
+                return Explanation.noMatch(ImageHashQuery.this.toString() + " doesn't match id " + doc);
+            }
         }
     }
 
@@ -152,15 +150,10 @@ public class ImageHashQuery extends Query {
     }
 
     @Override
-    public Weight createWeight(IndexSearcher searcher) throws IOException {
+    public Weight createWeight(IndexSearcher searcher, boolean needsScores) throws IOException {
         final IndexReaderContext context = searcher.getTopReaderContext();
         final TermContext termState = TermContext.build(context, term);
         return new ImageHashWeight(searcher, termState);
-    }
-
-    @Override
-    public void extractTerms(Set<Term> terms) {
-        terms.add(getTerm());
     }
 
     @Override

@@ -119,7 +119,7 @@ public class ImageQuery extends Query {
     }
 
     @Override
-    public Weight createWeight(IndexSearcher searcher) {
+    public Weight createWeight(IndexSearcher searcher, boolean needsScores) {
         return new ImageWeight(searcher);
     }
 
