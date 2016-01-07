@@ -5,8 +5,7 @@ import org.apache.sanselan.ImageWriteException;
 import org.apache.sanselan.Sanselan;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.collect.Maps;
-import org.elasticsearch.common.settings.ImmutableSettings;
+import com.google.common.collect.Maps;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.mapper.image.FeatureEnum;
 import org.elasticsearch.index.mapper.image.HashEnum;
@@ -14,25 +13,24 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.index.query.image.ImageQueryBuilder;
-import org.elasticsearch.plugins.PluginsService;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.test.ElasticsearchIntegrationTest;
+import org.elasticsearch.test.ESIntegTestCase;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import static org.elasticsearch.client.Requests.putMappingRequest;
-import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
-import static org.elasticsearch.common.settings.ImmutableSettings.settingsBuilder;
+import static org.elasticsearch.common.io.Streams.copyToString;
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.assertNoFailures;
 import static org.hamcrest.Matchers.*;
 
-@ElasticsearchIntegrationTest.ClusterScope(scope = ElasticsearchIntegrationTest.Scope.SUITE)
-public class ImageIntegrationTests extends ElasticsearchIntegrationTest {
+@ESIntegTestCase.ClusterScope(scope = ESIntegTestCase.Scope.SUITE)
+public class ImageIntegrationTests extends ESIntegTestCase {
 
     private final static String INDEX_NAME = "test";
     private final static String DOC_TYPE_NAME = "test";
@@ -40,9 +38,9 @@ public class ImageIntegrationTests extends ElasticsearchIntegrationTest {
 
     @Override
     protected Settings nodeSettings(int nodeOrdinal) {
-        return ImmutableSettings.builder()
+        return Settings.builder()
                 .put(super.nodeSettings(nodeOrdinal))
-                .put("plugins." + PluginsService.LOAD_PLUGIN_FROM_CLASSPATH, true)
+                .put("plugins." + "load_classpath_plugins", true)
                 .build();
     }
 
@@ -55,7 +53,7 @@ public class ImageIntegrationTests extends ElasticsearchIntegrationTest {
 
     @Override
     public Settings indexSettings() {
-        return settingsBuilder()
+        return Settings.builder()
                 .put("index.number_of_replicas", 0)
                 .put("index.number_of_shards", 5)
                 .put("index.image.use_thread_pool", randomBoolean())
@@ -178,5 +176,9 @@ public class ImageIntegrationTests extends ElasticsearchIntegrationTest {
         ImageFormat format = ImageFormat.IMAGE_FORMAT_TIFF;
         byte[] bytes = Sanselan.writeImageToBytes(image, format, Maps.newHashMap());
         return bytes;
+    }
+
+    public String copyToStringFromClasspath(String path) throws IOException {
+        return copyToString(new InputStreamReader(getClass().getResource(path).openStream(), "UTF-8"));
     }
 }

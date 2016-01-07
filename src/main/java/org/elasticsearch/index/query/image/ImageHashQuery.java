@@ -23,10 +23,10 @@ public class ImageHashQuery extends Query {
     private ImageScoreCache imageScoreCache;
 
     final class ImageHashScorer extends AbstractImageScorer {
-        private final DocsEnum docsEnum;
+        private final PostingsEnum docsEnum;
         private final IndexReader reader;
 
-        ImageHashScorer(Weight weight, DocsEnum td, IndexReader reader) {
+        ImageHashScorer(Weight weight, PostingsEnum td, IndexReader reader) {
             super(weight, luceneFieldName, lireFeature, reader, ImageHashQuery.this.getBoost());
             this.docsEnum = td;
             this.reader = reader;
@@ -70,8 +70,9 @@ public class ImageHashQuery extends Query {
     final class ImageHashWeight extends Weight {
         private final TermContext termStates;
 
-        public ImageHashWeight(IndexSearcher searcher, TermContext termStates)
+        public ImageHashWeight(IndexSearcher searcher, boolean needsScores, TermContext termStates)
                 throws IOException {
+            super(ImageHashQuery.this);
             assert termStates != null : "TermContext must not be null";
             this.termStates = termStates;
         }
@@ -89,13 +90,13 @@ public class ImageHashQuery extends Query {
         }
 
         @Override
-        public Scorer scorer(LeafReaderContext context, Bits acceptDocs) throws IOException {
+        public Scorer scorer(LeafReaderContext context) throws IOException {
             assert termStates.topReaderContext == ReaderUtil.getTopLevelContext(context) : "The top-reader used to create Weight (" + termStates.topReaderContext + ") is not the same as the current reader's top-reader (" + ReaderUtil.getTopLevelContext(context);
             final TermsEnum termsEnum = getTermsEnum(context);
             if (termsEnum == null) {
                 return null;
             }
-            DocsEnum docs = termsEnum.docs(acceptDocs, null);
+            PostingsEnum docs = termsEnum.postings( null);
             assert docs != null;
             return new ImageHashScorer(this, docs, context.reader());
         }
@@ -106,7 +107,7 @@ public class ImageHashQuery extends Query {
                 assert termNotInReader(context.reader(), term) : "no termstate found but term exists in reader term=" + term;
                 return null;
             }
-            final TermsEnum termsEnum = context.reader().terms(term.field()).iterator(null);
+            final TermsEnum termsEnum = context.reader().terms(term.field()).iterator();
             termsEnum.seekExact(term.bytes(), state);
             return termsEnum;
         }
@@ -117,7 +118,7 @@ public class ImageHashQuery extends Query {
 
         @Override
         public Explanation explain(LeafReaderContext context, int doc) throws IOException {
-            Scorer scorer = scorer(context, context.reader().getLiveDocs());
+            Scorer scorer = scorer(context);
             boolean exists = (scorer != null && scorer.advance(doc) == doc);
 
             if(exists){
@@ -134,6 +135,11 @@ public class ImageHashQuery extends Query {
             }else{
                 return Explanation.noMatch(ImageHashQuery.this.toString() + " doesn't match id " + doc);
             }
+        }
+
+        @Override
+        public void extractTerms(Set<Term> terms) {
+
         }
     }
 
@@ -153,7 +159,7 @@ public class ImageHashQuery extends Query {
     public Weight createWeight(IndexSearcher searcher, boolean needsScores) throws IOException {
         final IndexReaderContext context = searcher.getTopReaderContext();
         final TermContext termState = TermContext.build(context, term);
-        return new ImageHashWeight(searcher, termState);
+        return new ImageHashWeight(searcher,needsScores, termState);
     }
 
     @Override

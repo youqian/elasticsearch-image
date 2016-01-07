@@ -9,9 +9,7 @@ import org.apache.lucene.util.ToStringUtils;
 import org.elasticsearch.common.lucene.search.Queries;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Query by hash first and only calculate score for top n matches
@@ -40,12 +38,10 @@ public class ImageHashLimitQuery extends Query {
         private final int maxDoc;
         private final int docBase;
         private final BitSet bitSet;
-        private final Bits liveDocs;
 
-        ImageHashScorer(Weight weight, BitSet bitSet, LeafReaderContext context, Bits liveDocs) {
+        ImageHashScorer(Weight weight, BitSet bitSet, LeafReaderContext context) {
             super(weight, luceneFieldName, lireFeature, context.reader(), ImageHashLimitQuery.this.getBoost());
             this.bitSet = bitSet;
-            this.liveDocs = liveDocs;
             maxDoc = context.reader().maxDoc();
             docBase = context.docBase;
         }
@@ -65,7 +61,7 @@ public class ImageHashLimitQuery extends Query {
                 } else {
                     doc = d - docBase;
                 }
-            } while (doc != NO_MORE_DOCS && d < maxDoc + docBase && liveDocs != null && !liveDocs.get(doc));
+            } while (doc != NO_MORE_DOCS && d < maxDoc + docBase);
             return doc;
         }
 
@@ -87,6 +83,7 @@ public class ImageHashLimitQuery extends Query {
 
         public ImageHashLimitWeight(IndexSearcher searcher, BitSet bitSet)
                 throws IOException {
+            super(ImageHashLimitQuery.this);
             this.bitSet = bitSet;
             this.searcher = searcher;
         }
@@ -104,31 +101,27 @@ public class ImageHashLimitQuery extends Query {
         }
 
         @Override
-        public Scorer scorer(LeafReaderContext context, Bits acceptDocs) throws IOException {
-            return new ImageHashScorer(this, bitSet, context, acceptDocs);
+        public Scorer scorer(LeafReaderContext context) throws IOException {
+            return new ImageHashScorer(this, bitSet, context);
         }
 
         @Override
         public Explanation explain(LeafReaderContext context, int doc) throws IOException {
-            Scorer scorer = scorer(context, context.reader().getLiveDocs());
-            if (scorer != null) {
-                int newDoc = scorer.advance(doc);
-                if (newDoc == doc) {
-                    float score = scorer.score();
-                    ComplexExplanation result = new ComplexExplanation();
-                    result.setDescription("ImageHashLimitQuery, product of:");
-                    result.setValue(score);
-                    if (getBoost() != 1.0f) {
-                        result.addDetail(new Explanation(getBoost(),"boost"));
-                        score = score / getBoost();
-                    }
-                    result.addDetail(new Explanation(score ,"image score (1/distance)"));
-                    result.setMatch(true);
-                    return result;
+            Scorer scorer = scorer(context);
+            boolean exists = (scorer != null && scorer.advance(doc) == doc);
+            if(exists){
+                float score = scorer.score();
+                List<Explanation> details=new ArrayList<>();
+                if (getBoost() != 1.0f) {
+                    details.add(Explanation.match(getBoost(), "boost"));
+                    score = score / getBoost();
                 }
+                details.add(Explanation.match(score ,"image score (1/distance)"));
+                return Explanation.match(
+                        score, ImageHashLimitQuery.this.toString() + ", product of:",details);
+            }else{
+                return Explanation.noMatch(ImageHashLimitQuery.this.toString() + " doesn't match id " + doc);
             }
-
-            return new ComplexExplanation(false, 0.0f, "no matching term");
         }
 
         @Override
@@ -142,14 +135,14 @@ public class ImageHashLimitQuery extends Query {
         IndexSearcher indexSearcher = new IndexSearcher(searcher.getIndexReader());
         indexSearcher.setSimilarity(new SimpleSimilarity());
 
-        BooleanQuery booleanQuery = new BooleanQuery();
+        BooleanQuery.Builder builder=new BooleanQuery.Builder();
         for (int h : hashes) {
-            booleanQuery.add(new BooleanClause(new TermQuery(new Term(hashFieldName, Integer.toString(h))), BooleanClause.Occur.SHOULD));
+            builder.add(new BooleanClause(new TermQuery(new Term(hashFieldName, Integer.toString(h))), BooleanClause.Occur.SHOULD));
         }
-        TopDocs topDocs = indexSearcher.search(booleanQuery, maxResult);
+        TopDocs topDocs = indexSearcher.search(builder.build(), maxResult);
 
         if (topDocs.scoreDocs.length == 0) {  // no result find
-            return Queries.newMatchNoDocsQuery().createWeight(searcher);
+            return Queries.newMatchNoDocsQuery().createWeight(searcher,needsScores);
         }
 
         BitSet bitSet = new BitSet(topDocs.scoreDocs.length);

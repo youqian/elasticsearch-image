@@ -5,10 +5,11 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
-import org.apache.lucene.util.Bits;
 import org.apache.lucene.util.ToStringUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 
@@ -29,11 +30,9 @@ public class ImageQuery extends Query {
     private class ImageScorer extends AbstractImageScorer {
         private int doc = -1;
         private final int maxDoc;
-        private final Bits liveDocs;
 
-        ImageScorer(IndexReader reader, Bits liveDocs, Weight w) {
+        ImageScorer(IndexReader reader, Weight w) {
             super(w, luceneFieldName, lireFeature, reader, ImageQuery.this.getBoost());
-            this.liveDocs = liveDocs;
             maxDoc = reader.maxDoc();
         }
 
@@ -45,7 +44,7 @@ public class ImageQuery extends Query {
         @Override
         public int nextDoc() throws IOException {
             doc++;
-            while(liveDocs != null && doc < maxDoc && !liveDocs.get(doc)) {
+            while(doc < maxDoc) {
                 doc++;
             }
             if (doc == maxDoc) {
@@ -68,7 +67,8 @@ public class ImageQuery extends Query {
     }
 
     private class ImageWeight extends Weight {
-        public ImageWeight(IndexSearcher searcher) {
+        protected ImageWeight(Query query) {
+            super(query);
         }
 
         @Override
@@ -86,31 +86,27 @@ public class ImageQuery extends Query {
         }
 
         @Override
-        public Scorer scorer(LeafReaderContext context, Bits acceptDocs) throws IOException {
-            return new ImageScorer(context.reader(), acceptDocs, this);
+        public Scorer scorer(LeafReaderContext context) throws IOException {
+            return new ImageScorer(context.reader(), this);
         }
 
         @Override
         public Explanation explain(LeafReaderContext context, int doc) throws IOException {
-            Scorer scorer = scorer(context, context.reader().getLiveDocs());
-            if (scorer != null) {
-                int newDoc = scorer.advance(doc);
-                if (newDoc == doc) {
-                    float score = scorer.score();
-                    ComplexExplanation result = new ComplexExplanation();
-                    result.setDescription("ImageQuery, product of:");
-                    result.setValue(score);
-                    if (getBoost() != 1.0f) {
-                        result.addDetail(new Explanation(getBoost(),"boost"));
-                        score = score / getBoost();
-                    }
-                    result.addDetail(new Explanation(score ,"image score (1/distance)"));
-                    result.setMatch(true);
-                    return result;
+            Scorer scorer = scorer(context);
+            boolean exists = (scorer != null && scorer.advance(doc) == doc);
+            if(exists){
+                float score = scorer.score();
+                List<Explanation> details=new ArrayList<>();
+                if (getBoost() != 1.0f) {
+                    details.add(Explanation.match(getBoost(), "boost"));
+                    score = score / getBoost();
                 }
+                details.add(Explanation.match(score ,"image score (1/distance)"));
+                return Explanation.match(
+                        score, ImageQuery.this.toString() + ", product of:",details);
+            }else{
+                return Explanation.noMatch(ImageQuery.this.toString() + " doesn't match id " + doc);
             }
-
-            return new ComplexExplanation(false, 0.0f, "no matching term");
         }
 
         @Override
@@ -120,7 +116,7 @@ public class ImageQuery extends Query {
 
     @Override
     public Weight createWeight(IndexSearcher searcher, boolean needsScores) {
-        return new ImageWeight(searcher);
+        return new ImageWeight(this);
     }
 
     @Override
