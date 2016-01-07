@@ -104,7 +104,7 @@ public class ImageMapper extends FieldMapper {
 
         private Map<FeatureEnum, Map<String, Object>> features = Maps.newHashMap();
 
-        private Map<String, Mapper.Builder> metadataBuilders = Maps.newHashMap();
+        private Map<String, FieldMapper.Builder> metadataBuilders = Maps.newHashMap();
 
         public Builder(String name, ThreadPool threadPool) {
             super(name,new ImageFieldType());
@@ -117,7 +117,7 @@ public class ImageMapper extends FieldMapper {
             return this;
         }
 
-        public Builder addMetadata(String metadata, Mapper.Builder metadataBuilder) {
+        public Builder addMetadata(String metadata, FieldMapper.Builder metadataBuilder) {
             this.metadataBuilders.put(metadata, metadataBuilder);
             return this;
         }
@@ -151,10 +151,10 @@ public class ImageMapper extends FieldMapper {
 
             // add metadata mappers
             context.path().add(METADATA);
-            for (Map.Entry<String, Mapper.Builder> entry : metadataBuilders.entrySet()){
+            for (Map.Entry<String, FieldMapper.Builder> entry : metadataBuilders.entrySet()){
                 String metadataName = entry.getKey();
-                Mapper.Builder metadataBuilder = entry.getValue();
-                metadataMappers.put(metadataName, metadataBuilder.build(context));
+                FieldMapper.Builder metadataBuilder = entry.getValue();
+                metadataMappers.put(metadataName, (FieldMapper) metadataBuilder.build(context));
             }
             context.path().remove();  // remove METADATA
             context.path().remove();  // remove name
@@ -229,7 +229,7 @@ public class ImageMapper extends FieldMapper {
                 String metadataName = entry.getKey();
                 Map<String, Object> metadataMap = (Map<String, Object>) entry.getValue();
                 String fieldType = (String) metadataMap.get("type");
-                builder.addMetadata(metadataName, parserContext.typeParser(fieldType).parse(metadataName, metadataMap, parserContext));
+                builder.addMetadata(metadataName, (FieldMapper.Builder) parserContext.typeParser(fieldType).parse(metadataName, metadataMap, parserContext));
             }
 
             return builder;
