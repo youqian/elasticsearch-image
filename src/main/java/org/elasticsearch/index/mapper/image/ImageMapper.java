@@ -12,6 +12,7 @@ import net.semanticmetadata.lire.utils.ImageUtils;
 import net.semanticmetadata.lire.utils.SerializationUtils;
 import org.apache.lucene.document.BinaryDocValuesField;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.util.BytesRef;
 import org.elasticsearch.ElasticsearchGenerationException;
 import org.elasticsearch.ElasticsearchImageProcessException;
@@ -72,6 +73,8 @@ public class ImageMapper extends FieldMapper {
 
         public static final ImageFieldType FIELD_TYPE = new ImageFieldType();
         static {
+			FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
+            FIELD_TYPE.setTokenized(false);
             FIELD_TYPE.freeze();
         }
     }
@@ -423,8 +426,7 @@ public class ImageMapper extends FieldMapper {
         }
         builder.endObject();
 
-        builder.endObject();
-        return builder;
+        return builder.endObject();
     }
 
     @Override
