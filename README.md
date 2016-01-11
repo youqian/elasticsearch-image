@@ -1,21 +1,24 @@
 Image Plugin for Elasticsearch
 ==================================
 
-[![Build Status](https://travis-ci.org/kzwang/elasticsearch-image.png?branch=master)](https://travis-ci.org/kzwang/elasticsearch-image)
-
 The Image Plugin is an Content Based Image Retrieval Plugin for Elasticsearch using [LIRE (Lucene Image Retrieval)](https://code.google.com/p/lire/). It allows users to index images and search for similar images.
 
 It adds an `image` field type and an `image` query
 
-In order to install the plugin, simply run: `bin\plugin install zengde/elasticsearch-image`.
+In order to install the plugin, simply run: `bin\plugin install jmoati/elasticsearch-image`.
 
 |     Image Plugin          |  elasticsearch    | Release date |
 |---------------------------|-------------------|:------------:|
-| 2.1.1                     | 2.1.1             |              |
+| 2.1.1                     | 2.1.1             | 2016-01-09   |
 | 1.3.0-SNAPSHOT (master)   | 1.1.0             |              |
 | 1.2.0                     | 1.0.1             | 2014-03-20   |
 | 1.1.0                     | 1.0.1             | 2014-03-13   |
 | 1.0.0                     | 1.0.1             | 2014-03-05   |
+
+## Developers:
+Kevin Wang <kzwang>
+Angelo Leto <angleto>
+zengde <zengde>
 
 
 ## Example
