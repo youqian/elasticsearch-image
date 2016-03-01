@@ -317,9 +317,8 @@ public class ImageMapper extends FieldMapper {
         if (Math.max(img.getHeight(), img.getWidth()) > MAX_IMAGE_DIMENSION) {
             img = ImageUtils.scaleImage(img, MAX_IMAGE_DIMENSION);
         }
+        
         final BufferedImage finalImg = img;
-
-
 
         final Map<FeatureEnum, LireFeature> featureExtractMap = new MapMaker().makeMap();
 
