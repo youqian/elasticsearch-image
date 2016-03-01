@@ -9,11 +9,11 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.util.BytesRef;
 import org.elasticsearch.ElasticsearchImageProcessException;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.io.stream.ByteBufferStreamInput;
 import org.elasticsearch.common.xcontent.XContentParser;
@@ -51,10 +51,10 @@ public class ImageQueryParser implements QueryParser {
         XContentParser parser = parseContext.parser();
 
         XContentParser.Token token = parser.nextToken();
+     
         if (token != XContentParser.Token.FIELD_NAME) {
             throw new QueryParsingException(parseContext, "[image] query malformed, no field");
         }
-
 
         String fieldName = parser.currentName();
         FeatureEnum featureEnum = null;
@@ -124,25 +124,28 @@ public class ImageQueryParser implements QueryParser {
                 throw new ElasticsearchImageProcessException("Failed to parse image", e);
             }
         } else if (lookupIndex != null && lookupType != null && lookupId != null && lookupPath != null) {
+
             String lookupFieldName = lookupPath + "." + featureEnum.name();
+
             GetResponse getResponse = client.get(new GetRequest(lookupIndex, lookupType, lookupId).preference("_local").routing(lookupRouting).fields(lookupFieldName).realtime(false)).actionGet();
             if (getResponse.isExists()) {
                 GetField getField = getResponse.getField(lookupFieldName);
                 if (getField != null) {
-                    BytesReference bytesReference = (BytesReference) getField.getValue();
+                    BytesRef bytesReference = (BytesRef) getField.getValue();
                     try {
                         feature = featureEnum.getFeatureClass().newInstance();
-                        feature.setByteArrayRepresentation(bytesReference.array(), bytesReference.arrayOffset(), bytesReference.length());
+
+                        feature.setByteArrayRepresentation(bytesReference.bytes);
                     } catch (Exception e) {
                         throw new ElasticsearchImageProcessException("Failed to parse image", e);
                     }
                 }
             }
         }
+        
         if (feature == null) {
-            throw new QueryParsingException(parseContext, "No image specified for image query");
+            throw new QueryParsingException(parseContext, "No feature found for image query");
         }
-
 
         if (hashEnum == null) {  // no hash, need to scan all documents
             return new ImageQuery(luceneFieldName, feature, boost);

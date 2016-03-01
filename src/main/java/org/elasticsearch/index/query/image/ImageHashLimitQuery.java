@@ -3,8 +3,7 @@ package org.elasticsearch.index.query.image;
 import net.semanticmetadata.lire.imageanalysis.LireFeature;
 import org.apache.lucene.index.*;
 import org.apache.lucene.search.*;
-import org.apache.lucene.search.similarities.DefaultSimilarity;
-import org.apache.lucene.util.Bits;
+import org.apache.lucene.search.similarities.ClassicSimilarity;
 import org.apache.lucene.util.ToStringUtils;
 import org.elasticsearch.common.lucene.search.Queries;
 
@@ -198,7 +197,7 @@ public class ImageHashLimitQuery extends Query {
     }
 
 
-    final class SimpleSimilarity extends DefaultSimilarity{
+    final class SimpleSimilarity extends ClassicSimilarity{
         @Override
         public float tf(float freq) {
             return 1;

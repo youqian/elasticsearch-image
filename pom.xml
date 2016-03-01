@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.angleto</groupId>
     <artifactId>elasticsearch-image</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
     <packaging>jar</packaging>
     <description>Image Plugin for ElasticSearch</description>
     <url>http://github.com/zengde/elasticsearch-image</url>
@@ -37,8 +37,8 @@
     </parent>
 
     <properties>
-        <elasticsearch.version>2.1.1</elasticsearch.version>
-        <lucene.version>5.3.1</lucene.version>
+        <elasticsearch.version>2.2.0</elasticsearch.version>
+        <lucene.version>5.4.1</lucene.version>
         <tests.jvms>1</tests.jvms>
         <tests.shuffle>true</tests.shuffle>
         <tests.output>onerror</tests.output>
@@ -133,8 +133,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.3</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
            </plugin>
            <plugin>
