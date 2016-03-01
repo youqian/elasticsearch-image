@@ -1,14 +1,19 @@
 Image Plugin for Elasticsearch
 ==================================
 
+
+*please manually download and install "plugin-descriptor.properties" if you fail to install using plugin command.
+
+
 The Image Plugin is an Content Based Image Retrieval Plugin for Elasticsearch using [LIRE (Lucene Image Retrieval)](https://code.google.com/p/lire/). It allows users to index images and search for similar images.
 
 It adds an `image` field type and an `image` query
 
-In order to install the plugin, simply run: `bin\plugin install jmoati/elasticsearch-image`.
+In order to install the plugin, simply run: `bin\plugin install kiwionly/elasticsearch-image`.
 
 |     Image Plugin          |  elasticsearch    | Release date |
 |---------------------------|-------------------|:------------:|
+| 2.2.0                     | 2.2.0             | 2016-03-01   |
 | 2.1.1                     | 2.1.1             | 2016-01-09   |
 | 1.3.0-SNAPSHOT (master)   | 1.1.0             |              |
 | 1.2.0                     | 1.0.1             | 2014-03-20   |
@@ -19,6 +24,7 @@ In order to install the plugin, simply run: `bin\plugin install jmoati/elasticse
 Kevin Wang <kzwang>
 Angelo Leto <angleto>
 zengde <zengde>
+kiwionly <kiwionly>
 
 
 ## Example
