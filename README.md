@@ -53,8 +53,7 @@ curl -XPUT 'localhost:9200/test/test/_mapping' -d '{
                     },
                     "JCD": {
                         "hash": ["BIT_SAMPLING", "LSH"]
-                    },
-                    "FCTH": {}
+                    }
                 },
                 "metadata": {
                     "jpeg.image_width": {
@@ -73,7 +72,8 @@ curl -XPUT 'localhost:9200/test/test/_mapping' -d '{
 ```
 `type` should be `image`. This is the type register by this plugin. **Mandatory**
 
-`feature` is a map of features for index. You can only search what you specific, e.g. JCD with LSH hash, but you cannot search CEDD with LSH hash, because the index is not created. **Mandatory, at least one is required** 
+`feature` is a map of features for index. You can only search what you specific, e.g. base on example above, specific `JCD` with `LSH` in mapping allow search for it, but you cannot search `CEDD` with `LSH` 
+because the index mapping for `LSH` is not specific and created. If you not specific hash for a `feature`, it won't work. **Mandatory, at least one is required** 
 
 `hash` can be set if you want to search on hash. **Optional**
 
@@ -103,13 +103,13 @@ curl -XPOST 'localhost:9200/test/test/_search' -d '{
     }
 }'
 ```
-`feature` should be one of the features in the mapping. See above. **Mandatory**
+`feature` should be one of the features in the mapping. See above.  **Mandatory**
 
 `image` base64 of image to search.  **Optional if search using existing image**
 
-`hash` should be same to the hash set in mapping. See Above. **Optional**
+`hash` should be same to the hash set in mapping. See Above.  **Optional**
 
-`limit` limit the number of results returned (per shard) for scoring. **Optional, only works when `hash` is specified**
+`limit` limit the number of results returned (per shard) for scoring.  **Optional, only works when `hash` is specified**
 
 `boost` score boost  **Optional**
 
