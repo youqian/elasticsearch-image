@@ -7,6 +7,9 @@ It adds an `image` field type and an `image` query
 
 In order to install the plugin, simply run: `bin\plugin install kiwionly/elasticsearch-image`.
 
+Or run using gradle, plugin task `gradle plugin`
+
+
 |     Image Plugin          |  elasticsearch    | Release date |
 |---------------------------|-------------------|:------------:|
 | 2.2.0                     | 2.2.0             | 2016-03-01   |
@@ -15,6 +18,7 @@ In order to install the plugin, simply run: `bin\plugin install kiwionly/elastic
 | 1.2.0                     | 1.0.1             | 2014-03-20   |
 | 1.1.0                     | 1.0.1             | 2014-03-13   |
 | 1.0.0                     | 1.0.1             | 2014-03-05   |
+
 
 ## Developers:
 Kevin Wang <kzwang>
