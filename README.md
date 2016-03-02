@@ -1,7 +1,7 @@
 Image Plugin for Elasticsearch
 ==============================
 
-The Image Plugin is an Content Based Image Retrieval Plugin for Elasticsearch using [LIRE (Lucene Image Retrieval)](https://code.google.com/p/lire/). It allows users to index images and search for similar images.
+The Image Plugin is an Content Based Image Retrieval Plugin for Elasticsearch using [LIRE (Lucene Image Retrieval)](https://github.com/dermotte/lire). It allows users to index images and search for similar images.
 
 It adds an `image` field type and an `image` query
 
@@ -179,6 +179,7 @@ See [Large image data sets with LIRE ?some new numbers](http://www.semanticmetad
 
 - index.image.use_thread_pool is optional.
 - index.version.created is mandatory in settings.
+- add gradle support. (recommended, it is up to date and faster)
 
 #### 2.1.1 (2016-01-06)
 

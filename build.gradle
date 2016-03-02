@@ -1,0 +1,50 @@
+
+apply plugin: 'java'
+
+description = 'elasticsearch image'
+
+archivesBaseName = project.ext['project.name']
+version = project.ext['project.version']
+
+sourceCompatibility = 1.8
+
+jar.baseName = archivesBaseName
+
+task plugin(type: Zip) {
+
+    from jar
+
+    from('src/main/resources') {  
+	include '*.properties'  
+    }
+
+    from configurations.compile {
+	include 'lire**.jar'
+	include 'metadata-extractor-2.8.1.jar'
+	include 'elasticsearch-image**.jar'
+    }
+
+    into '/'
+}
+
+task wrapper(type: Wrapper) {
+
+    description 'create gradle wrapper'
+
+    gradleVersion = '2.8'
+}
+
+repositories {  
+    mavenCentral()  
+}
+
+dependencies {
+
+    compile 'org.elasticsearch:elasticsearch:2.2.0'
+    compile ('org.apache.lucene:lucene-core:5.4.1') { transitive = false }
+    compile ('com.github.kzwang:lire:0.9.4-kzwang-beta1') { transitive = false }
+    compile 'com.drewnoakes:metadata-extractor:2.8.1'
+
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.hamcrest:hamcrest-core:1.3'
+}

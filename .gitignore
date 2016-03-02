@@ -38,3 +38,4 @@ nbactions.xml
 
 ## test images
 /src/test/resources/image/
+/bin/
