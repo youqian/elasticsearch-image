@@ -20,7 +20,7 @@ task plugin(type: Zip) {
 
     from configurations.compile {
 	include 'lire**.jar'
-	include 'metadata-extractor-2.8.1.jar'
+	include 'metadata-extractor**.jar'
 	include 'elasticsearch-image**.jar'
     }
 
