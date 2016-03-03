@@ -1,11 +1,12 @@
 package org.elasticsearch.index.query.image;
 
-import net.semanticmetadata.lire.imageanalysis.LireFeature;
 import org.apache.lucene.index.*;
 import org.apache.lucene.search.*;
 import org.apache.lucene.search.similarities.ClassicSimilarity;
 import org.apache.lucene.util.ToStringUtils;
 import org.elasticsearch.common.lucene.search.Queries;
+
+import net.semanticmetadata.lire.imageanalysis.features.LireFeature;
 
 import java.io.IOException;
 import java.util.*;

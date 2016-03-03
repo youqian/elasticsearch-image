@@ -1,9 +1,10 @@
 package org.elasticsearch.index.query.image;
 
 
-import net.semanticmetadata.lire.imageanalysis.LireFeature;
-import net.semanticmetadata.lire.indexing.hashing.BitSampling;
-import net.semanticmetadata.lire.indexing.hashing.LocalitySensitiveHashing;
+import net.semanticmetadata.lire.imageanalysis.features.Extractor;
+import net.semanticmetadata.lire.imageanalysis.features.LireFeature;
+import net.semanticmetadata.lire.indexers.hashing.BitSampling;
+import net.semanticmetadata.lire.indexers.hashing.LocalitySensitiveHashing;
 import net.semanticmetadata.lire.utils.ImageUtils;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
@@ -110,16 +111,16 @@ public class ImageQueryParser implements QueryParser {
         }
 
         String luceneFieldName = fieldName + "." + featureEnum.name();
-        LireFeature feature = null;
+        LireFeature lireFeature = null;
 
         if (image != null) {
             try {
-                feature = featureEnum.getFeatureClass().newInstance();
+                lireFeature = featureEnum.getFeatureClass().newInstance();
                 BufferedImage img = ImageIO.read(new ByteBufferStreamInput(ByteBuffer.wrap(image)));
                 if (Math.max(img.getHeight(), img.getWidth()) > ImageMapper.MAX_IMAGE_DIMENSION) {
                     img = ImageUtils.scaleImage(img, ImageMapper.MAX_IMAGE_DIMENSION);
                 }
-                feature.extract(img);
+                ((Extractor)lireFeature).extract(img);
             } catch (Exception e) {
                 throw new ElasticsearchImageProcessException("Failed to parse image", e);
             }
@@ -133,9 +134,9 @@ public class ImageQueryParser implements QueryParser {
                 if (getField != null) {
                     BytesRef bytesReference = (BytesRef) getField.getValue();
                     try {
-                        feature = featureEnum.getFeatureClass().newInstance();
+                        lireFeature = featureEnum.getFeatureClass().newInstance();
 
-                        feature.setByteArrayRepresentation(bytesReference.bytes);
+                        lireFeature.setByteArrayRepresentation(bytesReference.bytes);
                     } catch (Exception e) {
                         throw new ElasticsearchImageProcessException("Failed to parse image", e);
                     }
@@ -143,23 +144,23 @@ public class ImageQueryParser implements QueryParser {
             }
         }
         
-        if (feature == null) {
+        if (lireFeature == null) {
             throw new QueryParsingException(parseContext, "No feature found for image query");
         }
 
         if (hashEnum == null) {  // no hash, need to scan all documents
-            return new ImageQuery(luceneFieldName, feature, boost);
+            return new ImageQuery(luceneFieldName, lireFeature, boost);
         } else {  // query by hash first
             int[] hash = null;
             if (hashEnum.equals(HashEnum.BIT_SAMPLING)) {
-                hash = BitSampling.generateHashes(feature.getDoubleHistogram());
+                hash = BitSampling.generateHashes(lireFeature.getFeatureVector());
             } else if (hashEnum.equals(HashEnum.LSH)) {
-                hash = LocalitySensitiveHashing.generateHashes(feature.getDoubleHistogram());
+                hash = LocalitySensitiveHashing.generateHashes(lireFeature.getFeatureVector());
             }
             String hashFieldName = luceneFieldName + "." + ImageMapper.HASH + "." + hashEnum.name();
 
             if (limit > 0) {  // has max result limit, use ImageHashLimitQuery
-                return new ImageHashLimitQuery(hashFieldName, hash, limit, luceneFieldName, feature, boost);
+                return new ImageHashLimitQuery(hashFieldName, hash, limit, luceneFieldName, lireFeature, boost);
             } else {  // no max result limit, use ImageHashQuery
                 BooleanQuery.Builder builder=new BooleanQuery.Builder()
                         .setDisableCoord(true);
@@ -171,7 +172,7 @@ public class ImageQueryParser implements QueryParser {
                             new ImageHashQuery(
                                     new Term(hashFieldName, Integer.toString(h)),
                                     luceneFieldName,
-                                    feature,
+                                    lireFeature,
                                     imageScoreCache,
                                     boost),
                             BooleanClause.Occur.SHOULD));
