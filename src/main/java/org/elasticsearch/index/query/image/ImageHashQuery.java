@@ -2,15 +2,14 @@ package org.elasticsearch.index.query.image;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import net.semanticmetadata.lire.imageanalysis.LireFeature;
 import org.apache.lucene.index.*;
 import org.apache.lucene.search.*;
-import org.apache.lucene.util.Bits;
 import org.apache.lucene.util.ToStringUtils;
+
+import net.semanticmetadata.lire.imageanalysis.features.LireFeature;
 
 /**
  * Copied from {@link TermQuery}, query by hash first and only calculate score for matching docs

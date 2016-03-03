@@ -13,15 +13,14 @@ jar.baseName = archivesBaseName
 task plugin(type: Zip) {
 
     from jar
+    from 'lib'
 
     from('src/main/resources') {  
 	include '*.properties'  
     }
 
-    from configurations.compile {
-	include 'lire**.jar'
+    from (configurations.compile) {
 	include 'metadata-extractor**.jar'
-	include 'elasticsearch-image**.jar'
     }
 
     into '/'
@@ -40,6 +39,7 @@ repositories {
 
 dependencies {
 
+    compile fileTree(dir: 'lib', include: '*.jar')
     compile 'org.elasticsearch:elasticsearch:2.2.0'
     compile ('org.apache.lucene:lucene-core:5.4.1') { transitive = false }
     compile ('com.github.kzwang:lire:0.9.4-kzwang-beta1') { transitive = false }
