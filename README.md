@@ -185,7 +185,8 @@ See [Large image data sets with LIRE ?some new numbers](http://www.semanticmetad
 - index.image.use_thread_pool is optional.
 - index.version.created is mandatory in settings.
 - add gradle support. (maven no longer use)
-*reindex is needed if using difference version of lire.
+
+*reindex is needed if using difference version of LIRE.
 
 #### 2.1.1 (2016-01-06)
 
