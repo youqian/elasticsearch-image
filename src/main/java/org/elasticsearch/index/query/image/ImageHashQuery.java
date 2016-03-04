@@ -8,7 +8,6 @@ import java.util.Set;
 import org.apache.lucene.index.*;
 import org.apache.lucene.search.*;
 import org.apache.lucene.util.ToStringUtils;
-
 import net.semanticmetadata.lire.imageanalysis.features.LireFeature;
 
 /**
@@ -20,57 +19,67 @@ public class ImageHashQuery extends Query {
     private String luceneFieldName;
     private LireFeature lireFeature;
     private ImageScoreCache imageScoreCache;
-
-    final class ImageHashScorer extends AbstractImageScorer {
-        private final PostingsEnum docsEnum;
-        private final IndexReader reader;
-
-        ImageHashScorer(Weight weight, PostingsEnum td, IndexReader reader) {
-            super(weight, luceneFieldName, lireFeature, reader, ImageHashQuery.this.getBoost());
-            this.docsEnum = td;
-            this.reader = reader;
-        }
-
-        @Override
-        public int docID() {
-            return docsEnum.docID();
-        }
-
-
-        @Override
-        public int nextDoc() throws IOException {
-            return docsEnum.nextDoc();
-        }
-
-        @Override
-        public float score() throws IOException {
-            assert docID() != NO_MORE_DOCS;
-            int docId = docID();
-            String cacheKey = reader.toString() + ":" + docId;
-            if (imageScoreCache.getScore(cacheKey) != null) {
-                return 0f;  // BooleanScorer will add all score together, return 0 for docs already processed
-            }
-            float score = super.score();
-            imageScoreCache.setScore(cacheKey, score);
-            return score;
-        }
-
-        @Override
-        public int advance(int target) throws IOException {
-            return docsEnum.advance(target);
-        }
-
-        @Override
-        public long cost() {
-            return docsEnum.cost();
-        }
+    
+    public ImageHashQuery(Term t, String luceneFieldName, LireFeature lireFeature, ImageScoreCache imageScoreCache, float boost) {
+        this.term = t;
+        this.luceneFieldName = luceneFieldName;
+        this.lireFeature = lireFeature;
+        this.imageScoreCache = imageScoreCache;
+        setBoost(boost);
     }
 
-    final class ImageHashWeight extends Weight {
+    @Override
+    public Weight createWeight(IndexSearcher searcher, boolean needsScores) throws IOException {
+	
+        final IndexReaderContext context = searcher.getTopReaderContext();
+        final TermContext termState = TermContext.build(context, term);
+        
+        return new ImageHashWeight(searcher, needsScores, termState);
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ImageHashQuery))
+            return false;
+        ImageHashQuery other = (ImageHashQuery)o;
+        return (this.getBoost() == other.getBoost())
+                && this.term.equals(other.term)
+                & luceneFieldName.equals(luceneFieldName)
+                && lireFeature.equals(lireFeature);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + term.hashCode();
+        result = 31 * result + luceneFieldName.hashCode();
+        result = 31 * result + lireFeature.hashCode();
+        result = Float.floatToIntBits(getBoost()) ^ result;
+        return result;
+    }
+    
+    @Override
+    public String toString(String field) {
+        StringBuilder buffer = new StringBuilder();
+        if (!term.field().equals(field)) {
+            buffer.append(term.field());
+            buffer.append(":");
+        }
+        buffer.append(term.text());
+        buffer.append(";");
+        buffer.append(luceneFieldName);
+        buffer.append(",");
+        buffer.append(lireFeature.getClass().getSimpleName());
+        buffer.append(ToStringUtils.boost(getBoost()));
+        return buffer.toString();
+    }
+    
+    
+    final class ImageHashWeight extends Weight 
+    {
         private final TermContext termStates;
 
-        public ImageHashWeight(IndexSearcher searcher, boolean needsScores, TermContext termStates)
-                throws IOException {
+        public ImageHashWeight(IndexSearcher searcher, boolean needsScores, TermContext termStates) throws IOException {
             super(ImageHashQuery.this);
             assert termStates != null : "TermContext must not be null";
             this.termStates = termStates;
@@ -141,60 +150,53 @@ public class ImageHashQuery extends Query {
 
         }
     }
+    
+    
+    final class ImageHashScorer extends AbstractImageScorer 
+    {
+        private final PostingsEnum docsEnum;
+        private final IndexReader reader;
 
-    public ImageHashQuery(Term t, String luceneFieldName, LireFeature lireFeature, ImageScoreCache imageScoreCache, float boost) {
-        this.term = t;
-        this.luceneFieldName = luceneFieldName;
-        this.lireFeature = lireFeature;
-        this.imageScoreCache = imageScoreCache;
-        setBoost(boost);
-    }
-
-    public Term getTerm() {
-        return term;
-    }
-
-    @Override
-    public Weight createWeight(IndexSearcher searcher, boolean needsScores) throws IOException {
-        final IndexReaderContext context = searcher.getTopReaderContext();
-        final TermContext termState = TermContext.build(context, term);
-        return new ImageHashWeight(searcher,needsScores, termState);
-    }
-
-    @Override
-    public String toString(String field) {
-        StringBuilder buffer = new StringBuilder();
-        if (!term.field().equals(field)) {
-            buffer.append(term.field());
-            buffer.append(":");
+        ImageHashScorer(Weight weight, PostingsEnum td, IndexReader reader) {
+            super(weight, luceneFieldName, lireFeature, reader, ImageHashQuery.this.getBoost());
+            this.docsEnum = td;
+            this.reader = reader;
         }
-        buffer.append(term.text());
-        buffer.append(";");
-        buffer.append(luceneFieldName);
-        buffer.append(",");
-        buffer.append(lireFeature.getClass().getSimpleName());
-        buffer.append(ToStringUtils.boost(getBoost()));
-        return buffer.toString();
-    }
 
-    @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof ImageHashQuery))
-            return false;
-        ImageHashQuery other = (ImageHashQuery)o;
-        return (this.getBoost() == other.getBoost())
-                && this.term.equals(other.term)
-                & luceneFieldName.equals(luceneFieldName)
-                && lireFeature.equals(lireFeature);
-    }
+        @Override
+        public int docID() {
+            return docsEnum.docID();
+        }
 
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + term.hashCode();
-        result = 31 * result + luceneFieldName.hashCode();
-        result = 31 * result + lireFeature.hashCode();
-        result = Float.floatToIntBits(getBoost()) ^ result;
-        return result;
+        @Override
+        public int nextDoc() throws IOException {
+            return docsEnum.nextDoc();
+        }
+
+        @Override
+        public float score() throws IOException {
+            assert docID() != NO_MORE_DOCS;
+            int docId = docID();
+            String cacheKey = reader.toString() + ":" + docId;
+            if (imageScoreCache.getScore(cacheKey) != null) {
+                return 0f;  // BooleanScorer will add all score together, return 0 for docs already processed
+            }
+            float score = super.score();
+            imageScoreCache.setScore(cacheKey, score);
+            return score;
+        }
+
+        @Override
+        public int advance(int target) throws IOException {
+            return docsEnum.advance(target);
+        }
+
+        @Override
+        public long cost() {
+            return docsEnum.cost();
+        }
     }
+    
+
+    
 }

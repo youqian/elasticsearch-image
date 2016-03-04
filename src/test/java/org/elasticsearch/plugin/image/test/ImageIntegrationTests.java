@@ -123,7 +123,7 @@ public class ImageIntegrationTests extends ESIntegTestCase {
         assertThat((String)hit3.getSource().get("name"), equalTo(nameToSearch));
 
         // test search with hash and limit
-        ImageQueryBuilder imageQueryBuilder4 = new ImageQueryBuilder("img").feature(FeatureEnum.CEDD.name()).image(imgToSearch).hash(HashEnum.BIT_SAMPLING.name()).limit(10);
+        ImageQueryBuilder imageQueryBuilder4 = new ImageQueryBuilder("img").feature(FeatureEnum.CEDD.name()).image(imgToSearch).hash(HashEnum.BIT_SAMPLING.name());
         SearchResponse searchResponse4 = client().prepareSearch(INDEX_NAME).setTypes(DOC_TYPE_NAME).setQuery(imageQueryBuilder4).setSize(totalImages).get();
         assertNoFailures(searchResponse4);
         SearchHits hits4 = searchResponse4.getHits();
@@ -140,7 +140,7 @@ public class ImageIntegrationTests extends ESIntegTestCase {
         assertThat("Should match at least one record", hits5.getTotalHits(), greaterThanOrEqualTo(1l)); // if using hash, total result maybe different than number of images
 
         // test search with exist image
-        ImageQueryBuilder imageQueryBuilder6 = new ImageQueryBuilder("img").feature(FeatureEnum.CEDD.name()).lookupIndex(INDEX_NAME).lookupType(DOC_TYPE_NAME).lookupId(idToSearch).lookupPath("img");
+        ImageQueryBuilder imageQueryBuilder6 = new ImageQueryBuilder("img").feature(FeatureEnum.CEDD.name()).lookupIndex(INDEX_NAME).lookupType(DOC_TYPE_NAME).lookupId(idToSearch);
         SearchResponse searchResponse6 = client().prepareSearch(INDEX_NAME).setTypes(DOC_TYPE_NAME).setQuery(imageQueryBuilder6).setSize(totalImages).get();
         assertNoFailures(searchResponse6);
         SearchHits hits6 = searchResponse6.getHits();
@@ -150,7 +150,7 @@ public class ImageIntegrationTests extends ESIntegTestCase {
         assertImageScore(hits6, nameToSearch, 2.0f);
 
         // test search with exist image using hash
-        ImageQueryBuilder imageQueryBuilder7 = new ImageQueryBuilder("img").feature(FeatureEnum.CEDD.name()).lookupIndex(INDEX_NAME).lookupType(DOC_TYPE_NAME).lookupId(idToSearch).lookupPath("img").hash(HashEnum.BIT_SAMPLING.name());
+        ImageQueryBuilder imageQueryBuilder7 = new ImageQueryBuilder("img").feature(FeatureEnum.CEDD.name()).lookupIndex(INDEX_NAME).lookupType(DOC_TYPE_NAME).lookupId(idToSearch).hash(HashEnum.BIT_SAMPLING.name());
         SearchResponse searchResponse7 = client().prepareSearch(INDEX_NAME).setTypes(DOC_TYPE_NAME).setQuery(imageQueryBuilder7).setSize(totalImages).get();
         assertNoFailures(searchResponse7);
         SearchHits hits7 = searchResponse7.getHits();

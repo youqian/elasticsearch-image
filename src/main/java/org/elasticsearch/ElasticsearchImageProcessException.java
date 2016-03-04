@@ -1,6 +1,7 @@
 package org.elasticsearch;
 
 
+@SuppressWarnings("serial")
 public class ElasticsearchImageProcessException extends ElasticsearchException {
 
     public ElasticsearchImageProcessException(String msg) {

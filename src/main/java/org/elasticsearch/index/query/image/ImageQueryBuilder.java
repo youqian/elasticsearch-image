@@ -20,17 +20,15 @@ public class ImageQueryBuilder extends QueryBuilder implements BoostableQueryBui
 
     private float boost = -1;
 
-    private int limit = -1;
-
     private String lookupIndex;
 
     private String lookupType;
+    
+    private String lookupField;
 
     private String lookupId;
 
     private String lookupRouting;
-
-    private String lookupPath;
 
     public ImageQueryBuilder(String fieldName) {
         this.fieldName = fieldName;
@@ -51,13 +49,13 @@ public class ImageQueryBuilder extends QueryBuilder implements BoostableQueryBui
         return this;
     }
 
-    public ImageQueryBuilder limit(int limit) {
-        this.limit = limit;
-        return this;
-    }
-
     public ImageQueryBuilder lookupIndex(String lookupIndex) {
         this.lookupIndex = lookupIndex;
+        return this;
+    }
+    
+    public ImageQueryBuilder lookupField(String lookupField) {
+        this.lookupField = lookupField;
         return this;
     }
 
@@ -68,11 +66,6 @@ public class ImageQueryBuilder extends QueryBuilder implements BoostableQueryBui
 
     public ImageQueryBuilder lookupId(String lookupId) {
         this.lookupId = lookupId;
-        return this;
-    }
-
-    public ImageQueryBuilder lookupPath(String lookupPath) {
-        this.lookupPath = lookupPath;
         return this;
     }
 
@@ -98,16 +91,17 @@ public class ImageQueryBuilder extends QueryBuilder implements BoostableQueryBui
             builder.field("image", image);
         }
 
-
         if (lookupIndex != null) {
             builder.field("index", lookupIndex);
         }
+        
         builder.field("type", lookupType);
+        builder.field("field", lookupField);
         builder.field("id", lookupId);
+        
         if (lookupRouting != null) {
             builder.field("routing", lookupRouting);
         }
-        builder.field("path", lookupPath);
 
         if (hash != null) {
             builder.field("hash", hash);
@@ -115,10 +109,6 @@ public class ImageQueryBuilder extends QueryBuilder implements BoostableQueryBui
 
         if (boost != -1) {
             builder.field("boost", boost);
-        }
-
-        if (limit != -1) {
-            builder.field("limit", limit);
         }
 
         builder.endObject();

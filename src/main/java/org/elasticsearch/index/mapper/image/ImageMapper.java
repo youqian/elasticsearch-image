@@ -222,6 +222,10 @@ public class ImageMapper extends FieldMapper {
             for (Map.Entry<String, Object> entry : features.entrySet()) {
                 String feature = entry.getKey();
                 Map<String, Object> featureMap = (Map<String, Object>) entry.getValue();
+                
+                if(featureMap.isEmpty()) {
+                    throw new ElasticsearchImageProcessException("hash is not specific.");
+                }
 
                 // process hash for each feature
                 if (featureMap.containsKey(HASH)) {
@@ -391,6 +395,7 @@ public class ImageMapper extends FieldMapper {
                         hashMapper.parse(context.createExternalValueContext(SerializationUtils.arrayToString(hashVals)));
                     }
                 }
+                
             } catch (Exception e) {
                 throw new ElasticsearchImageProcessException("Failed to index feature " + featureEnum.name(), e);
             }

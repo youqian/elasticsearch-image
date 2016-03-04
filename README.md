@@ -79,7 +79,7 @@ curl -XPUT 'localhost:9200/test/test/_mapping' -d '{
 `feature` is a map of features for index. You can only search what you specific, e.g. base on example above, specific `JCD` with `LSH` in mapping allow search for it, but you cannot search `CEDD` with `LSH` 
 because the index mapping for `LSH` is not specific and created. If you not specific hash for a `feature`, it won't work. **Mandatory, at least one is required** 
 
-`hash` can be set if you want to search on hash. **Optional**
+`hash` can be set if you want to search on hash. **Mandatory**
 
 `metadata` is a map of metadata for index, only those metadata will be indexed. See [Metadata](#metadata). **Optional**
 
@@ -94,6 +94,8 @@ curl -XPOST 'localhost:9200/test/test' -d '{
 #### Search Image
 ```sh
 curl -XPOST 'localhost:9200/test/test/_search' -d '{
+	"from": 0,
+    "size": 3,
     "query": {
         "image": {
             "my_img": {
@@ -113,14 +115,12 @@ curl -XPOST 'localhost:9200/test/test/_search' -d '{
 
 `hash` should be same to the hash set in mapping. See Above.  **Optional**
 
-`limit` limit the number of results returned (per shard) for scoring.  **Optional, only works when `hash` is specified**
-
 `boost` score boost  **Optional**
 
 
 #### Search Image using existing image in index
 ```sh
-curl -XPOST 'localhost:9200/test/test/_search' -d '{
+curl -XPOST 'localhost:9200/test/test/_search' -d '{ 	
     "query": {
         "image": {
             "my_img": {
@@ -128,7 +128,6 @@ curl -XPOST 'localhost:9200/test/test/_search' -d '{
                 "index": "test",
                 "type": "test",
                 "id": "image1",
-                "path": "my_img",
                 "hash": "BIT_SAMPLING"
             }
         }
@@ -141,7 +140,7 @@ curl -XPOST 'localhost:9200/test/test/_search' -d '{
 
 `id` the id of the document to fetch image from.  **Mandatory**
 
-`path` the field specified as path to fetch image from. Example above is "my_img **Mandatory**
+`field` the field specified as path to fetch image from. Example above is "my_img **Optional**
 
 `routing` a custom routing value to be used when retrieving the external image doc.  **Optional**
 
@@ -185,6 +184,10 @@ See [Large image data sets with LIRE ?some new numbers](http://www.semanticmetad
 - index.image.use_thread_pool is optional.
 - index.version.created is mandatory in settings.
 - add gradle support. (maven no longer use)
+- simplify index and search by remove some parameters.
+- limit no longer use, use pagination `from` and `size` from elastic search instead.
+- remove ImageHashLimitQuery and ImageQuery, this 2 classes possible no longer work 
+   (I cound not make it work, also that is possibility not valid anymore for new elastic search version).
 
 *reindex is needed if using difference version of LIRE.
 
