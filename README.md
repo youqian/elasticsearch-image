@@ -144,6 +144,22 @@ curl -XPOST 'localhost:9200/test/test/_search' -d '{
 
 `routing` a custom routing value to be used when retrieving the external image doc.  **Optional**
 
+### image query Builder
+```sh
+SearchRequestBuilder queryBuilder = searchClient.prepareSearch(INDEX)
+		.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+		.setTypes("Image")
+		.setFrom(from)
+		.setSize(size);
+	
+	ImageQueryBuilder query = new ImageQueryBuilder("img");  //image field
+	query.feature(feature);
+	query.hash(hash);
+	query.lookupIndex(INDEX);
+	query.lookupType("Image");
+	query.lookupId(itemId);	
+```
+
 
 ### Metadata
 Metadata are extracted using [metadata-extractor](https://code.google.com/p/metadata-extractor/). See [SampleOutput](https://code.google.com/p/metadata-extractor/wiki/SampleOutput) for some examples of metadata.
