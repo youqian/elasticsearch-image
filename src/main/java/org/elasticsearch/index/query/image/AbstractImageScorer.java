@@ -12,6 +12,8 @@ import net.semanticmetadata.lire.imageanalysis.features.LireFeature;
 
 import java.io.IOException;
 
+import static org.apache.lucene.search.DocIdSetIterator.NO_MORE_DOCS;
+
 /**
  * Calculate score for each image
  * score = (1 / distance) * boost
@@ -44,7 +46,7 @@ public abstract class AbstractImageScorer extends Scorer {
         try {
             BytesRef bytesRef = binaryDocValues.get(docID());
             LireFeature docFeature = lireFeature.getClass().newInstance();
-            docFeature.setByteArrayRepresentation(bytesRef.bytes);
+            docFeature.setByteArrayRepresentation(bytesRef.bytes, bytesRef.offset, bytesRef.length);
 
             double distance = lireFeature.getDistance(docFeature);
             double score;

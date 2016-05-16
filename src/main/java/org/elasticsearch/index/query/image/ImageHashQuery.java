@@ -10,6 +10,8 @@ import org.apache.lucene.search.*;
 import org.apache.lucene.util.ToStringUtils;
 import net.semanticmetadata.lire.imageanalysis.features.LireFeature;
 
+import static org.apache.lucene.search.DocIdSetIterator.NO_MORE_DOCS;
+
 /**
  * Copied from {@link TermQuery}, query by hash first and only calculate score for matching docs
  */
@@ -127,7 +129,8 @@ public class ImageHashQuery extends Query {
         @Override
         public Explanation explain(LeafReaderContext context, int doc) throws IOException {
             Scorer scorer = scorer(context);
-            boolean exists = (scorer != null && scorer.advance(doc) == doc);
+            boolean exists = (scorer != null && scorer.iterator().advance(doc) == doc);
+            //scorer.
 
             if(exists){
                 float score = scorer.score();
@@ -168,10 +171,10 @@ public class ImageHashQuery extends Query {
             return docsEnum.docID();
         }
 
-        @Override
-        public int nextDoc() throws IOException {
-            return docsEnum.nextDoc();
-        }
+//        @Override
+//        public int nextDoc() throws IOException {
+//            return docsEnum.nextDoc();
+//        }
 
         @Override
         public float score() throws IOException {
@@ -187,14 +190,41 @@ public class ImageHashQuery extends Query {
         }
 
         @Override
-        public int advance(int target) throws IOException {
-            return docsEnum.advance(target);
+        public DocIdSetIterator iterator() {
+            // added for lucene 5.5.0
+            return new DocIdSetIterator() {
+
+                @Override
+                public int docID() {
+                    return docsEnum.docID();
+                }
+
+                @Override
+                public int nextDoc() throws IOException {
+                    return docsEnum.nextDoc();
+                }
+
+                @Override
+                public int advance(int target) throws IOException {
+                    return docsEnum.advance(target);
+                }
+
+                @Override
+                public long cost() {
+                    return docsEnum.cost();
+                }
+            };
         }
 
-        @Override
-        public long cost() {
-            return docsEnum.cost();
-        }
+//        @Override
+//        public int advance(int target) throws IOException {
+//            return docsEnum.advance(target);
+//        }
+
+//        @Override
+//        public long cost() {
+//            return docsEnum.cost();
+//        }
     }
     
 

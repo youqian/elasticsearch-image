@@ -15,8 +15,8 @@ task plugin(type: Zip) {
     from jar
     from 'lib'
 
-    from('src/main/resources') {  
-	include '*.properties'  
+    from('src/main/resources') {
+	include '*.properties'
     }
 
     from (configurations.compile) {
@@ -33,15 +33,15 @@ task wrapper(type: Wrapper) {
     gradleVersion = '2.8'
 }
 
-repositories {  
-    mavenCentral()  
+repositories {
+    mavenCentral()
 }
 
 dependencies {
 
     compile fileTree(dir: 'lib', include: '*.jar')
-    compile 'org.elasticsearch:elasticsearch:2.2.0'
-    compile ('org.apache.lucene:lucene-core:5.4.1') { transitive = false }
+    compile 'org.elasticsearch:elasticsearch:2.3.2'
+    compile ('org.apache.lucene:lucene-core:5.5.0') { transitive = false }
     compile 'com.drewnoakes:metadata-extractor:2.8.1'
 
     testCompile 'junit:junit:4.12'
