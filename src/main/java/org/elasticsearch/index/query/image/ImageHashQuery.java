@@ -171,11 +171,6 @@ public class ImageHashQuery extends Query {
             return docsEnum.docID();
         }
 
-//        @Override
-//        public int nextDoc() throws IOException {
-//            return docsEnum.nextDoc();
-//        }
-
         @Override
         public float score() throws IOException {
             assert docID() != NO_MORE_DOCS;
@@ -215,16 +210,6 @@ public class ImageHashQuery extends Query {
                 }
             };
         }
-
-//        @Override
-//        public int advance(int target) throws IOException {
-//            return docsEnum.advance(target);
-//        }
-
-//        @Override
-//        public long cost() {
-//            return docsEnum.cost();
-//        }
     }
     
 

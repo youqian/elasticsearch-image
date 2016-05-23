@@ -12,6 +12,7 @@ You can create the plugin via gradle via gradle task `gradle plugin`, then unzip
 
 |     Image Plugin          |  elasticsearch    | Release date |
 |---------------------------|-------------------|:------------:|
+| 2.3.2                     | 2.3.2             | 2016-05-16   |
 | 2.2.0                     | 2.2.0             | 2016-03-01   |
 | 2.1.1                     | 2.1.1             | 2016-01-09   |
 | 1.3.0-SNAPSHOT (master)   | 1.1.0             |              |
@@ -193,6 +194,9 @@ See [Large image data sets with LIRE ?some new numbers](http://www.semanticmetad
 | index.image.ignore_metadata_error| ignore errors happened during extract metadata from image | True |
 
 ## ChangeLog
+
+#### 2.3.2 (2016-05-16)
+- fix a JCD feature bug, see [here](https://github.com/visuual/elasticsearch-image/commit/be80790ed23253faf677a8f336da6228e8e3fd82)
 
 #### 2.2.0 (2016-03-01)
 - upgrade to lire 1.0b2.
