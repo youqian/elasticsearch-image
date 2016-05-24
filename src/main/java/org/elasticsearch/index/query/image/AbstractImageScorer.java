@@ -12,6 +12,8 @@ import net.semanticmetadata.lire.imageanalysis.features.LireFeature;
 
 import java.io.IOException;
 
+import static org.apache.lucene.search.DocIdSetIterator.NO_MORE_DOCS;
+
 /**
  * Calculate score for each image
  * score = (1 / distance) * boost
