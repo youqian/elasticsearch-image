@@ -12,6 +12,7 @@ You can create the plugin via gradle via gradle task `gradle plugin`, then unzip
 
 |     Image Plugin          |  elasticsearch    | Release date |
 |---------------------------|-------------------|:------------:|
+| 2.3.3                     | 2.3.3             | 2016-05-24   |
 | 2.3.2                     | 2.3.2             | 2016-05-16   |
 | 2.2.0                     | 2.2.0             | 2016-03-01   |
 | 2.1.1                     | 2.1.1             | 2016-01-09   |
